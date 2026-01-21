@@ -1,0 +1,28 @@
+services:
+  tor:
+    image: dperson/torproxy
+    container_name: tor
+    restart: unless-stopped
+    environment:
+      - LOCATION=FR       # préférer exit node en France
+      - STRICT=1          # n’utiliser que France
+      - TOR_MaxCircuitDirtiness=600
+    ports:
+      - "9050:9050"       # SOCKS5
+      - "9051:9051"       # control port
+
+  backend:
+    build: ./backend
+    depends_on:
+      - tor
+    environment:
+      - TOR_PROXY=socks5://tor:9050
+    ports:
+      - "5000:5000"
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
