@@ -1,0 +1,70 @@
+services:
+  tor:
+    image: dperson/torproxy
+    container_name: tor
+    restart: unless-stopped
+    volumes:
+      - tor1:/var/lib/tor
+      - tor2:/etc/tor
+    environment:
+      - LOCATION=FR       # préférer exit node en France
+      - STRICT=1          # n’utiliser que France
+      - TOR_MaxCircuitDirtiness=600
+    ports:
+      - "9050:9050"       # SOCKS5
+      - "9051:9051"       # control port
+
+  postgres:
+    image: postgres:15-alpine
+    env_file: docker/postgres.env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.dockerfile
+    env_file: 
+      - docker/backend.env
+      - docker/postgres.env
+    depends_on:
+      - postgres
+      - tor
+    ports:
+      - "5000:5000"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.dockerfile
+    env_file: docker/frontend.env
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+
+  pgadmin:
+    build:
+      context: .
+      dockerfile: docker/pgadmin.dockerfile
+    env_file: 
+      - docker/pgadmin.env
+      - docker/postgres.env
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - "8080:80"
+    depends_on:
+      - postgres
+    entrypoint: ["/bin/sh", "/pgadmin4/init_pgadmin_servers.sh"]
+
+volumes:
+  pgdata:
+  pgadmin_data:
+  tor1:
+  tor2:
+
