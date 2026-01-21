@@ -9,6 +9,5 @@ COPY ./pgadmin/servers.json.template /pgadmin4/servers.json.template
 COPY ./pgadmin/init_pgadmin_servers.sh /pgadmin4/init_pgadmin_servers.sh
 RUN chmod +x /pgadmin4/init_pgadmin_servers.sh
 
-USER pgadmin
 
 ENTRYPOINT ["/pgadmin4/init_pgadmin_servers.sh"]

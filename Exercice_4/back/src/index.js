@@ -18,10 +18,11 @@ const pool = new Pool({
   port: process.env.POSTGRES_PORT
 });
 // Adresse du proxy Tor (docker DNS)
-const torProxy = process.env.TOR_PROXY || "socks5://tor:9050";
+const torProxy = process.env.TOR_PROXY;
 const agent = new SocksProxyAgent(torProxy);
 const app = express();
 app.use(express.json());
+
 
 //pull users from randomuser.me via Tor
 app.get("/tor-users", async (req, res) => {

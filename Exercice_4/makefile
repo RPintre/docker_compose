@@ -12,11 +12,11 @@ fclean: clean
 	
 re: fclean all
 
-purge-bdd: fclean
+purge-bdd: clean
 	docker volume rm exercice_4_pgadmin_data 
 	docker volume rm exercice_4_pgdata 
-	docker volume rm tor1
-	docker volume rm tor2
+	docker volume rm exercice_4_tor1
+	docker volume rm exercice_4_tor2
 
 purge-all:
 	$(COMPOSE) down -v --rmi all
